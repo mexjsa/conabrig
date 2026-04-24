@@ -9,16 +9,16 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
-            --primary: #003399; /* Azul Institucional México */
-            --primary-light: #1e4bb5;
-            --accent: #d4af37; /* Dorado sutil institucional */
-            --success: #10b981;
-            --pending: #fbbf24;
-            --danger: #ef4444;
-            --bg-canvas: #f1f5f9;
+            --primary: #4E102E; /* Guinda Institucional */
+            --primary-light: #6E1C44;
+            --accent: #9E7E2E; /* Dorado Institucional */
+            --success: #285C4D; /* Verde Institucional/Exitoso */
+            --pending: #D4AF37; /* Dorado Claro para Pendientes */
+            --danger: #B3282D; /* Rojo Institucional/Fallido */
+            --bg-canvas: #F9F9F9; /* Off-white Data Studio */
             --glass: rgba(255, 255, 255, 0.85);
-            --text-dark: #0f172a;
-            --text-muted: #64748b;
+            --text-dark: #333333; /* Gris muy oscuro casi guinda para contraste */
+            --text-muted: #555555;
             --sidebar-width: 420px;
         }
 
@@ -589,9 +589,9 @@
             display.forEach(d => {
                 const report = persistentReports[d.CCT];
                 const status = report ? report.status : 'pendiente';
-                let color = '#fbbf24'; // Pending
-                if (status === 'visitado') color = '#10b981';
-                if (status === 'fallido') color = '#ef4444';
+                let color = 'var(--pending)'; // Pending
+                if (status === 'visitado') color = 'var(--success)';
+                if (status === 'fallido') color = 'var(--danger)';
 
                 const icon = L.divIcon({
                     className: 'marker-container',
@@ -628,7 +628,7 @@
 
                 if (points.length > 1) {
                     L.polyline(points, {
-                        color: '#003399',
+                        color: 'var(--primary)',
                         weight: 3,
                         opacity: 0.5,
                         dashArray: '10, 10',
