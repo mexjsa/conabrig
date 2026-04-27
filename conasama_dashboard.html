@@ -554,13 +554,13 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="group-relatoria">
                             <label>Relatoría de Actividades (Mín. 50 caracteres)</label>
                             <textarea id="form-text" rows="8" placeholder="Describe los hallazgos de la brigada detalladamente..."></textarea>
                             <small id="char-count" style="display: block; text-align: right; font-size: 0.6rem; color: var(--text-muted); margin-top: 4px;">0 caracteres</small>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="group-funcionario">
                             <label>Datos del Funcionario Asignado</label>
                             <input type="text" id="form-rfc" placeholder="RFC (EJ. ABCD800101XYZ)" maxlength="13" style="text-transform: uppercase; margin-bottom: 10px;">
                             <div class="funcionario-grid">
@@ -634,7 +634,7 @@
                             </table>
                         </div>
 
-                        <div class="form-group" style="margin-top: 15px;">
+                        <div class="form-group" style="margin-top: 15px;" id="group-evidencia">
                             <label>Evidencia Fotográfica</label>
                             <div class="photo-area" id="photo-dropzone">
                                 <input type="file" id="form-file" class="hidden" accept="image/*" multiple>
@@ -1018,32 +1018,38 @@
             // (Photos are handled via the currentPhotos global array)
 
             // VALIDACIONES
-            if (!rfc || !apaterno || !amaterno || !nombre || !cargo) {
-                alert('⚠️ Todos los datos del funcionario asignado son obligatorios.');
-                return;
+            if (status !== 'pendiente') {
+                if (!rfc || !apaterno || !amaterno || !nombre || !cargo) {
+                    alert('⚠️ Todos los datos del funcionario asignado son obligatorios.');
+                    return;
+                }
+                if (rfc.length < 10) {
+                    alert('⚠️ El RFC parece estar incompleto. Por favor verifícalo.');
+                    return;
+                }
             }
-            if (rfc.length < 10) {
-                alert('⚠️ El RFC parece estar incompleto. Por favor verifícalo.');
-                return;
+
+            if (status === 'visitado') {
+                if (!tema || !actividad) {
+                    alert('⚠️ Debe seleccionar un Tema y una Actividad.');
+                    return;
+                }
+                if (document.getElementById('form-cantidad').classList.contains('input-error')) {
+                    alert('⚠️ El valor de Cantidad supera el límite permitido. Habilite "Alto volumen" si es necesario.');
+                    return;
+                }
+                if (text.length === 0) {
+                    alert('⚠️ La relatoría de actividades no puede estar vacía.');
+                    return;
+                }
+                if (text.length < 50) {
+                    alert('⚠️ La relatoría es demasiado corta. Debe tener al menos 50 caracteres para ser válida.');
+                    return;
+                }
             }
-            if (!tema || !actividad) {
-                alert('⚠️ Debe seleccionar un Tema y una Actividad.');
-                return;
-            }
-            if (document.getElementById('form-cantidad').classList.contains('input-error')) {
-                alert('⚠️ El valor de Cantidad supera el límite permitido. Habilite "Alto volumen" si es necesario.');
-                return;
-            }
+
             if (status === 'fallido' && !motivo) {
                 alert('⚠️ Por favor indica el motivo del fallo de la visita.');
-                return;
-            }
-            if (text.length === 0) {
-                alert('⚠️ La relatoría de actividades no puede estar vacía.');
-                return;
-            }
-            if (text.length < 50) {
-                alert('⚠️ La relatoría es demasiado corta. Debe tener al menos 50 caracteres para ser válida.');
                 return;
             }
 
@@ -1209,14 +1215,34 @@
 
         function toggleSections() {
             const status = document.getElementById('form-status').value;
-            document.getElementById('group-motivo').style.display = status === 'fallido' ? 'block' : 'none';
             
-            const groupBen = document.getElementById('group-beneficiados');
-            if (status !== 'pendiente') {
-                groupBen.style.display = 'block';
-            } else {
-                groupBen.style.display = 'none';
+            const gMotivo = document.getElementById('group-motivo');
+            const gActividad = document.getElementById('group-actividad');
+            const gRelatoria = document.getElementById('group-relatoria');
+            const gFuncionario = document.getElementById('group-funcionario');
+            const gBeneficiados = document.getElementById('group-beneficiados');
+            const gEvidencia = document.getElementById('group-evidencia');
+            
+            // Ocultar todo por defecto
+            gMotivo.style.display = 'none';
+            gActividad.style.display = 'none';
+            gRelatoria.style.display = 'none';
+            gFuncionario.style.display = 'none';
+            gBeneficiados.style.display = 'none';
+            gEvidencia.style.display = 'none';
+
+            if (status === 'pendiente') {
                 resetFormNumerics();
+            } else if (status === 'fallido') {
+                resetFormNumerics();
+                gMotivo.style.display = 'block';
+                gFuncionario.style.display = 'block';
+            } else if (status === 'visitado') {
+                gActividad.style.display = 'block';
+                gRelatoria.style.display = 'block';
+                gFuncionario.style.display = 'block';
+                gBeneficiados.style.display = 'block';
+                gEvidencia.style.display = 'block';
             }
         }
         document.getElementById('form-status').onchange = toggleSections;
