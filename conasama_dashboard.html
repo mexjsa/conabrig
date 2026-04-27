@@ -225,9 +225,20 @@
             cursor: pointer; position: relative; min-height: 100px;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        .photo-area img { max-width: 100%; border-radius: 6px; margin-top: 10px; display: none; }
-        .photo-area.has-photo img { display: block; }
-        .photo-area.has-photo p { display: none; }
+        .photo-gallery {
+            display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; width: 100%; justify-content: center;
+        }
+        .photo-thumb-container {
+            position: relative; width: 60px; height: 60px;
+        }
+        .photo-thumb {
+            width: 100%; height: 100%; object-fit: cover; border-radius: 6px; border: 1px solid #e2e8f0;
+        }
+        .photo-remove {
+            position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%;
+            width: 16px; height: 16px; font-size: 12px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; font-weight: bold; line-height: 1;
+        }
 
         /* MARKERS */
         .custom-marker {
@@ -318,6 +329,7 @@
         /* SECCIÓN ACTIVIDAD */
         .actividad-section {
             margin-top: 15px;
+            margin-bottom: 15px;
             padding: 15px;
             background: #fff;
             border: 1px solid #e2e8f0;
@@ -625,9 +637,9 @@
                         <div class="form-group" style="margin-top: 15px;">
                             <label>Evidencia Fotográfica</label>
                             <div class="photo-area" id="photo-dropzone">
-                                <input type="file" id="form-file" class="hidden" accept="image/*">
-                                <p>📸 Haz clic para subir o capturar foto</p>
-                                <img id="photo-preview" src="">
+                                <input type="file" id="form-file" class="hidden" accept="image/*" multiple>
+                                <p id="dropzone-text">📸 Haz clic para subir evidencias y/o foto de cuestionario (Máx. 5)</p>
+                                <div id="photo-gallery" class="photo-gallery"></div>
                             </div>
                         </div>
 
@@ -972,14 +984,12 @@
             
             updateCharCount();
             
-            const preview = document.getElementById('photo-preview');
-            const zone = document.getElementById('photo-dropzone');
-            if (report.photo) {
-                preview.src = report.photo;
-                zone.classList.add('has-photo');
-            } else {
-                zone.classList.remove('has-photo');
+            currentPhotos = report.photos || [];
+            if (report.photo && !report.photos) {
+                // Backwards compatibility with single photo
+                currentPhotos = [report.photo];
             }
+            renderGallery();
 
             toggleSections();
 
@@ -1005,7 +1015,7 @@
             const cantidad = parseInt(document.getElementById('form-cantidad').value, 10) || 0;
             const altoVolumen = document.getElementById('form-toggle-volumen').checked;
             
-            const photo = document.getElementById('photo-preview').src;
+            // (Photos are handled via the currentPhotos global array)
 
             // VALIDACIONES
             if (!rfc || !apaterno || !amaterno || !nombre || !cargo) {
@@ -1058,7 +1068,7 @@
                 cantidad,
                 altoVolumen,
                 beneficiados,
-                photo: photo.startsWith('data:') ? photo : '',
+                photos: currentPhotos,
                 timestamp: new Date().toISOString()
             };
 
@@ -1126,19 +1136,67 @@
         }
 
         // --- MANEJO DE FOTOS ---
-        document.getElementById('photo-dropzone').onclick = () => document.getElementById('form-file').click();
-        document.getElementById('form-file').onchange = function(e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    const preview = document.getElementById('photo-preview');
-                    preview.src = event.target.result;
-                    document.getElementById('photo-dropzone').classList.add('has-photo');
-                };
-                reader.readAsDataURL(file);
-            }
+        let currentPhotos = [];
+        
+        document.getElementById('photo-dropzone').onclick = (e) => {
+            if(e.target.classList.contains('photo-remove')) return;
+            document.getElementById('form-file').click();
         };
+
+        document.getElementById('form-file').onchange = function(e) {
+            const files = Array.from(e.target.files);
+            
+            if (currentPhotos.length + files.length > 5) {
+                alert('⚠️ Solo se permite un máximo de 5 imágenes.');
+                return;
+            }
+
+            files.forEach(file => {
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        currentPhotos.push(event.target.result);
+                        renderGallery();
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            // Limpiar input para permitir seleccionar la misma imagen de nuevo
+            this.value = '';
+        };
+
+        function renderGallery() {
+            const gallery = document.getElementById('photo-gallery');
+            const dropzoneP = document.getElementById('dropzone-text');
+            gallery.innerHTML = '';
+            
+            if (currentPhotos.length > 0) {
+                dropzoneP.style.display = 'none';
+                currentPhotos.forEach((photoData, index) => {
+                    const container = document.createElement('div');
+                    container.className = 'photo-thumb-container';
+                    
+                    const img = document.createElement('img');
+                    img.src = photoData;
+                    img.className = 'photo-thumb';
+                    
+                    const removeBtn = document.createElement('div');
+                    removeBtn.className = 'photo-remove';
+                    removeBtn.innerHTML = '×';
+                    removeBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        currentPhotos.splice(index, 1);
+                        renderGallery();
+                    };
+                    
+                    container.appendChild(img);
+                    container.appendChild(removeBtn);
+                    gallery.appendChild(container);
+                });
+            } else {
+                dropzoneP.style.display = 'block';
+            }
+        }
 
         // Bloqueo de caracteres no permitidos
         document.addEventListener('keydown', function(e) {
