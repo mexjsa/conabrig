@@ -315,6 +315,56 @@
             grid-column: 1 / -1;
         }
 
+        /* SECCIÓN ACTIVIDAD */
+        .actividad-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            border-left: 4px solid #621132;
+        }
+        .actividad-section h3 {
+            font-size: 0.8rem;
+            color: #621132;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 40px;
+            height: 20px;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .4s;
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 14px; width: 14px;
+            left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .slider { background-color: #BC955C; }
+        input:checked + .slider:before { transform: translateX(20px); }
+        
+        .input-error { border-color: red !important; box-shadow: 0 0 5px rgba(255,0,0,0.3); }
+
     </style>
 </head>
 <body>
@@ -456,6 +506,42 @@
                             <textarea id="form-motivo" rows="2" placeholder="Ej. Plantel cerrado, manifestación..."></textarea>
                         </div>
 
+                        <!-- SECCIÓN: DATOS DE LA ACTIVIDAD -->
+                        <div class="actividad-section" id="group-actividad">
+                            <h3>Datos de la Actividad</h3>
+                            <div class="form-group">
+                                <label>Tema *</label>
+                                <select id="form-tema" class="form-control">
+                                    <option value="">Selecciona un tema...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Subtema</label>
+                                <select id="form-subtema" class="form-control" disabled>
+                                    <option value="">Selecciona un subtema...</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo de Actividad *</label>
+                                <select id="form-actividad" class="form-control">
+                                    <option value="">Selecciona una actividad...</option>
+                                </select>
+                            </div>
+                            <div class="form-group" style="display: flex; gap: 15px; align-items: flex-end;">
+                                <div style="flex: 1;">
+                                    <label>Cantidad *</label>
+                                    <input type="number" id="form-cantidad" class="form-control num-sanitized" value="0" min="0">
+                                </div>
+                                <div class="toggle-container" style="flex: 1; margin-bottom: 10px;">
+                                    <label class="switch">
+                                        <input type="checkbox" id="form-toggle-volumen">
+                                        <span class="slider"></span>
+                                    </label>
+                                    <label style="font-size: 0.7rem; font-weight: 600; color: #BC955C; text-transform: none; margin:0;">Alto volumen (+99)</label>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label>Relatoría de Actividades (Mín. 50 caracteres)</label>
                             <textarea id="form-text" rows="8" placeholder="Describe los hallazgos de la brigada detalladamente..."></textarea>
@@ -494,37 +580,43 @@
                                         <th>Grado/Nivel Escolar</th>
                                         <th>Hombres</th>
                                         <th>Mujeres</th>
+                                        <th>Total por Grado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
                                         <td>Secundaria 1er grado</td>
-                                        <td><input type="number" min="0" max="999" class="calc-h" id="h-sec1" value="0"></td>
-                                        <td><input type="number" min="0" max="999" class="calc-m" id="m-sec1" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-h num-sanitized" id="h-sec1" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-m num-sanitized" id="m-sec1" value="0"></td>
+                                        <td><input type="text" id="t-sec1" value="0" readonly style="background: transparent; border: none; font-weight: 700; width: 40px; text-align: center;"></td>
                                     </tr>
                                     <tr>
                                         <td>Secundaria 2do grado</td>
-                                        <td><input type="number" min="0" max="999" class="calc-h" id="h-sec2" value="0"></td>
-                                        <td><input type="number" min="0" max="999" class="calc-m" id="m-sec2" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-h num-sanitized" id="h-sec2" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-m num-sanitized" id="m-sec2" value="0"></td>
+                                        <td><input type="text" id="t-sec2" value="0" readonly style="background: transparent; border: none; font-weight: 700; width: 40px; text-align: center;"></td>
                                     </tr>
                                     <tr>
                                         <td>Secundaria 3er grado</td>
-                                        <td><input type="number" min="0" max="999" class="calc-h" id="h-sec3" value="0"></td>
-                                        <td><input type="number" min="0" max="999" class="calc-m" id="m-sec3" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-h num-sanitized" id="h-sec3" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-m num-sanitized" id="m-sec3" value="0"></td>
+                                        <td><input type="text" id="t-sec3" value="0" readonly style="background: transparent; border: none; font-weight: 700; width: 40px; text-align: center;"></td>
                                     </tr>
                                     <tr>
                                         <td>Preparatoria o Bachillerato</td>
-                                        <td><input type="number" min="0" max="999" class="calc-h" id="h-prep" value="0"></td>
-                                        <td><input type="number" min="0" max="999" class="calc-m" id="m-prep" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-h num-sanitized" id="h-prep" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-m num-sanitized" id="m-prep" value="0"></td>
+                                        <td><input type="text" id="t-prep" value="0" readonly style="background: transparent; border: none; font-weight: 700; width: 40px; text-align: center;"></td>
                                     </tr>
                                     <tr class="total-row">
                                         <td>Total</td>
                                         <td><input type="text" id="total-h" value="0" readonly></td>
                                         <td><input type="text" id="total-m" value="0" readonly></td>
+                                        <td></td>
                                     </tr>
                                     <tr class="total-row">
                                         <td style="text-align: right;">Total General</td>
-                                        <td colspan="2"><input type="text" id="total-general" value="0" readonly style="width: 100%;"></td>
+                                        <td colspan="3"><input type="text" id="total-general" value="0" readonly style="width: 100%;"></td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -559,8 +651,48 @@
         let persistentReports = JSON.parse(localStorage.getItem('conasama_v2_reports') || '{}');
         let currentStatusFilter = 'all';
 
+        // --- CATALOGOS ---
+        const catTemas = ['Salud mental y bienestar emocional', 'Prevención del consumo de sustancias psicoactivas', 'Prevención de la conducta suicida'];
+        const catSubtemasSM = ['Bienestar laboral y riesgos psicosociales', 'Crianza positiva', 'Duelo', 'Manejo de emociones', 'Prevención de la violencia', 'Salud mental en la infancia y adolescencia'];
+        const catActividades = ['Capacitación virtual', 'Capacitación presencial', 'Cápsula informativa', 'Conferencia presencial', 'Conferencia en línea', 'Consejería / Orientación', 'Curso presencial', 'Curso en línea', 'Obra de Teatro', 'Promoción de entornos de trabajo saludables', 'Plática', 'Sesión educativa', 'Taller presencial', 'Taller en línea'];
+
+        function initCatalogos() {
+            const selTema = document.getElementById('form-tema');
+            const selActividad = document.getElementById('form-actividad');
+            
+            catTemas.forEach(t => selTema.add(new Option(t, t)));
+            catActividades.forEach(a => selActividad.add(new Option(a, a)));
+
+            selTema.onchange = function() {
+                const selSub = document.getElementById('form-subtema');
+                selSub.innerHTML = '<option value="">Selecciona un subtema...</option>';
+                if (this.value === 'Salud mental y bienestar emocional') {
+                    selSub.disabled = false;
+                    catSubtemasSM.forEach(s => selSub.add(new Option(s, s)));
+                } else {
+                    selSub.disabled = true;
+                }
+            };
+            
+            const inputCant = document.getElementById('form-cantidad');
+            const toggleVol = document.getElementById('form-toggle-volumen');
+            
+            function validateCantidad() {
+                const max = toggleVol.checked ? 999 : 99;
+                const val = parseInt(inputCant.value, 10) || 0;
+                if (val > max) {
+                    inputCant.classList.add('input-error');
+                } else {
+                    inputCant.classList.remove('input-error');
+                }
+            }
+            inputCant.addEventListener('input', validateCantidad);
+            toggleVol.addEventListener('change', validateCantidad);
+        }
+
         // --- INICIALIZACIÓN ---
         function init() {
+            initCatalogos();
             initMap();
             if (window.conasamaData) {
                 allData = window.conasamaData;
@@ -817,6 +949,21 @@
             document.getElementById('form-nombre').value = report.nombre || '';
             document.getElementById('form-cargo').value = report.cargo || '';
             
+            document.getElementById('form-tema').value = report.tema || '';
+            if (report.tema === 'Salud mental y bienestar emocional') {
+                const selSub = document.getElementById('form-subtema');
+                selSub.disabled = false;
+                selSub.innerHTML = '<option value="">Selecciona un subtema...</option>';
+                catSubtemasSM.forEach(s => selSub.add(new Option(s, s)));
+            } else {
+                document.getElementById('form-subtema').disabled = true;
+                document.getElementById('form-subtema').innerHTML = '<option value="">Selecciona un subtema...</option>';
+            }
+            document.getElementById('form-subtema').value = report.subtema || '';
+            document.getElementById('form-actividad').value = report.actividad || '';
+            document.getElementById('form-cantidad').value = report.cantidad || 0;
+            document.getElementById('form-toggle-volumen').checked = report.altoVolumen || false;
+            
             ['sec1', 'sec2', 'sec3', 'prep'].forEach(nivel => {
                 document.getElementById(`h-${nivel}`).value = (report.beneficiados && report.beneficiados[`h-${nivel}`]) || 0;
                 document.getElementById(`m-${nivel}`).value = (report.beneficiados && report.beneficiados[`m-${nivel}`]) || 0;
@@ -851,6 +998,13 @@
             const amaterno = document.getElementById('form-amaterno').value.trim();
             const nombre = document.getElementById('form-nombre').value.trim();
             const cargo = document.getElementById('form-cargo').value.trim();
+            
+            const tema = document.getElementById('form-tema').value;
+            const subtema = document.getElementById('form-subtema').value;
+            const actividad = document.getElementById('form-actividad').value;
+            const cantidad = parseInt(document.getElementById('form-cantidad').value, 10) || 0;
+            const altoVolumen = document.getElementById('form-toggle-volumen').checked;
+            
             const photo = document.getElementById('photo-preview').src;
 
             // VALIDACIONES
@@ -860,6 +1014,14 @@
             }
             if (rfc.length < 10) {
                 alert('⚠️ El RFC parece estar incompleto. Por favor verifícalo.');
+                return;
+            }
+            if (!tema || !actividad) {
+                alert('⚠️ Debe seleccionar un Tema y una Actividad.');
+                return;
+            }
+            if (document.getElementById('form-cantidad').classList.contains('input-error')) {
+                alert('⚠️ El valor de Cantidad supera el límite permitido. Habilite "Alto volumen" si es necesario.');
                 return;
             }
             if (status === 'fallido' && !motivo) {
@@ -890,6 +1052,11 @@
                 amaterno,
                 nombre,
                 cargo,
+                tema,
+                subtema,
+                actividad,
+                cantidad,
+                altoVolumen,
                 beneficiados,
                 photo: photo.startsWith('data:') ? photo : '',
                 timestamp: new Date().toISOString()
@@ -973,29 +1140,61 @@
             }
         };
 
+        // Bloqueo de caracteres no permitidos
+        document.addEventListener('keydown', function(e) {
+            if (e.target && e.target.classList.contains('num-sanitized')) {
+                if (['e', 'E', '+', '-', '.'].includes(e.key)) {
+                    e.preventDefault();
+                }
+            }
+        });
+
         function toggleSections() {
             const status = document.getElementById('form-status').value;
             document.getElementById('group-motivo').style.display = status === 'fallido' ? 'block' : 'none';
-            document.getElementById('group-beneficiados').style.display = status === 'visitado' ? 'block' : 'none';
+            
+            const groupBen = document.getElementById('group-beneficiados');
+            if (status !== 'pendiente') {
+                groupBen.style.display = 'block';
+            } else {
+                groupBen.style.display = 'none';
+                resetFormNumerics();
+            }
         }
         document.getElementById('form-status').onchange = toggleSections;
 
+        function resetFormNumerics() {
+            document.querySelectorAll('.num-sanitized').forEach(input => {
+                input.value = 0;
+                input.classList.remove('input-error');
+            });
+            document.getElementById('form-toggle-volumen').checked = false;
+            calculateTotals();
+        }
+
         function calculateTotals() {
             let totalH = 0;
-            document.querySelectorAll('.calc-h').forEach(input => totalH += parseInt(input.value) || 0);
-            document.getElementById('total-h').value = totalH;
-
             let totalM = 0;
-            document.querySelectorAll('.calc-m').forEach(input => totalM += parseInt(input.value) || 0);
-            document.getElementById('total-m').value = totalM;
+            
+            ['sec1', 'sec2', 'sec3', 'prep'].forEach(nivel => {
+                const h = parseInt(document.getElementById(`h-${nivel}`).value, 10) || 0;
+                const m = parseInt(document.getElementById(`m-${nivel}`).value, 10) || 0;
+                const t = h + m;
+                document.getElementById(`t-${nivel}`).value = t;
+                totalH += h;
+                totalM += m;
+            });
 
+            document.getElementById('total-h').value = totalH;
+            document.getElementById('total-m').value = totalM;
             document.getElementById('total-general').value = totalH + totalM;
         }
 
         document.querySelectorAll('.calc-h, .calc-m').forEach(input => {
             input.addEventListener('input', function() {
-                if (this.value > 999) this.value = 999;
-                if (this.value < 0) this.value = 0;
+                const val = parseInt(this.value, 10) || 0;
+                if (val > 999) this.value = 999;
+                if (val < 0) this.value = 0;
                 calculateTotals();
             });
         });
