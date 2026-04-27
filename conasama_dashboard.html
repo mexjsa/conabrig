@@ -246,6 +246,75 @@
         .hidden { display: none; }
         .text-center { text-align: center; }
 
+        /* TABLA BENEFICIADOS */
+        .beneficiados-section {
+            margin-top: 15px;
+            padding: 15px;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            display: none; /* Hidden by default */
+        }
+        .beneficiados-section h3 {
+            font-size: 0.8rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+        .beneficiados-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.75rem;
+        }
+        .beneficiados-table th, .beneficiados-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            text-align: center;
+        }
+        .beneficiados-table th {
+            background: #f8fafc;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+        .beneficiados-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-muted);
+        }
+        .beneficiados-table input {
+            width: 60px;
+            padding: 4px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            text-align: center;
+            font-family: inherit;
+        }
+        .beneficiados-table input:focus {
+            border-color: var(--primary);
+            outline: none;
+        }
+        .beneficiados-table .total-row td {
+            font-weight: 700;
+            background: #f1f5f9;
+        }
+        .beneficiados-table .total-row input {
+            background: transparent;
+            border: none;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        /* GRID DATOS FUNCIONARIO */
+        .funcionario-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .funcionario-grid .full-width {
+            grid-column: 1 / -1;
+        }
+
     </style>
 </head>
 <body>
@@ -394,11 +463,74 @@
                         </div>
 
                         <div class="form-group">
-                            <label>RFC del Funcionario Asignado</label>
-                            <input type="text" id="form-rfc" placeholder="EJ. ABCD800101XYZ" maxlength="13" style="text-transform: uppercase;">
+                            <label>Datos del Funcionario Asignado</label>
+                            <input type="text" id="form-rfc" placeholder="RFC (EJ. ABCD800101XYZ)" maxlength="13" style="text-transform: uppercase; margin-bottom: 10px;">
+                            <div class="funcionario-grid">
+                                <div>
+                                    <label style="font-size: 0.6rem;">Apellido paterno *</label>
+                                    <input type="text" id="form-apaterno" placeholder="APELLIDO PATERNO">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.6rem;">Apellido materno *</label>
+                                    <input type="text" id="form-amaterno" placeholder="APELLIDO MATERNO">
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.6rem;">Nombre(s) *</label>
+                                    <input type="text" id="form-nombre" placeholder="NOMBRE(S)">
+                                </div>
+                                <div class="full-width">
+                                    <label style="font-size: 0.6rem;">Cargo *</label>
+                                    <input type="text" id="form-cargo" placeholder="CARGO O PUESTO">
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="form-group">
+                        <!-- SECCIÓN CONDICIONAL: PERSONAS BENEFICIADAS -->
+                        <div class="beneficiados-section" id="group-beneficiados">
+                            <h3>Personas beneficiadas</h3>
+                            <table class="beneficiados-table">
+                                <thead>
+                                    <tr>
+                                        <th>Grado/Nivel Escolar</th>
+                                        <th>Hombres</th>
+                                        <th>Mujeres</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Secundaria 1er grado</td>
+                                        <td><input type="number" min="0" max="999" class="calc-h" id="h-sec1" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-m" id="m-sec1" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Secundaria 2do grado</td>
+                                        <td><input type="number" min="0" max="999" class="calc-h" id="h-sec2" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-m" id="m-sec2" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Secundaria 3er grado</td>
+                                        <td><input type="number" min="0" max="999" class="calc-h" id="h-sec3" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-m" id="m-sec3" value="0"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Preparatoria o Bachillerato</td>
+                                        <td><input type="number" min="0" max="999" class="calc-h" id="h-prep" value="0"></td>
+                                        <td><input type="number" min="0" max="999" class="calc-m" id="m-prep" value="0"></td>
+                                    </tr>
+                                    <tr class="total-row">
+                                        <td>Total</td>
+                                        <td><input type="text" id="total-h" value="0" readonly></td>
+                                        <td><input type="text" id="total-m" value="0" readonly></td>
+                                    </tr>
+                                    <tr class="total-row">
+                                        <td style="text-align: right;">Total General</td>
+                                        <td colspan="2"><input type="text" id="total-general" value="0" readonly style="width: 100%;"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="form-group" style="margin-top: 15px;">
                             <label>Evidencia Fotográfica</label>
                             <div class="photo-area" id="photo-dropzone">
                                 <input type="file" id="form-file" class="hidden" accept="image/*">
@@ -680,6 +812,16 @@
             document.getElementById('form-text').value = report.text || '';
             document.getElementById('form-motivo').value = report.motivo || '';
             document.getElementById('form-rfc').value = report.rfc || '';
+            document.getElementById('form-apaterno').value = report.apaterno || '';
+            document.getElementById('form-amaterno').value = report.amaterno || '';
+            document.getElementById('form-nombre').value = report.nombre || '';
+            document.getElementById('form-cargo').value = report.cargo || '';
+            
+            ['sec1', 'sec2', 'sec3', 'prep'].forEach(nivel => {
+                document.getElementById(`h-${nivel}`).value = (report.beneficiados && report.beneficiados[`h-${nivel}`]) || 0;
+                document.getElementById(`m-${nivel}`).value = (report.beneficiados && report.beneficiados[`m-${nivel}`]) || 0;
+            });
+            calculateTotals();
             
             updateCharCount();
             
@@ -692,7 +834,7 @@
                 zone.classList.remove('has-photo');
             }
 
-            toggleMotivo();
+            toggleSections();
 
             // Zoom a la escuela
             map.flyTo([d.Latitud, d.Longitud], 15);
@@ -705,11 +847,15 @@
             const text = document.getElementById('form-text').value.trim();
             const motivo = document.getElementById('form-motivo').value.trim();
             const rfc = document.getElementById('form-rfc').value.trim().toUpperCase();
+            const apaterno = document.getElementById('form-apaterno').value.trim();
+            const amaterno = document.getElementById('form-amaterno').value.trim();
+            const nombre = document.getElementById('form-nombre').value.trim();
+            const cargo = document.getElementById('form-cargo').value.trim();
             const photo = document.getElementById('photo-preview').src;
 
             // VALIDACIONES
-            if (!rfc) {
-                alert('⚠️ El RFC del funcionario es obligatorio para guardar el reporte.');
+            if (!rfc || !apaterno || !amaterno || !nombre || !cargo) {
+                alert('⚠️ Todos los datos del funcionario asignado son obligatorios.');
                 return;
             }
             if (rfc.length < 10) {
@@ -729,11 +875,22 @@
                 return;
             }
 
+            const beneficiados = {};
+            ['sec1', 'sec2', 'sec3', 'prep'].forEach(nivel => {
+                beneficiados[`h-${nivel}`] = parseInt(document.getElementById(`h-${nivel}`).value) || 0;
+                beneficiados[`m-${nivel}`] = parseInt(document.getElementById(`m-${nivel}`).value) || 0;
+            });
+
             persistentReports[selectedSchool.CCT] = {
                 status,
                 text,
                 motivo,
                 rfc,
+                apaterno,
+                amaterno,
+                nombre,
+                cargo,
+                beneficiados,
                 photo: photo.startsWith('data:') ? photo : '',
                 timestamp: new Date().toISOString()
             };
@@ -816,11 +973,32 @@
             }
         };
 
-        function toggleMotivo() {
+        function toggleSections() {
             const status = document.getElementById('form-status').value;
             document.getElementById('group-motivo').style.display = status === 'fallido' ? 'block' : 'none';
+            document.getElementById('group-beneficiados').style.display = status === 'visitado' ? 'block' : 'none';
         }
-        document.getElementById('form-status').onchange = toggleMotivo;
+        document.getElementById('form-status').onchange = toggleSections;
+
+        function calculateTotals() {
+            let totalH = 0;
+            document.querySelectorAll('.calc-h').forEach(input => totalH += parseInt(input.value) || 0);
+            document.getElementById('total-h').value = totalH;
+
+            let totalM = 0;
+            document.querySelectorAll('.calc-m').forEach(input => totalM += parseInt(input.value) || 0);
+            document.getElementById('total-m').value = totalM;
+
+            document.getElementById('total-general').value = totalH + totalM;
+        }
+
+        document.querySelectorAll('.calc-h, .calc-m').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.value > 999) this.value = 999;
+                if (this.value < 0) this.value = 0;
+                calculateTotals();
+            });
+        });
 
         // --- RELOJ ---
         function startClock() {
