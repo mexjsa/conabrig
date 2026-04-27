@@ -62,6 +62,35 @@
         .brand-text h1 { font-size: 1.1rem; font-weight: 700; letter-spacing: -0.5px; color: var(--primary); }
         .brand-text p { font-size: 0.65rem; text-transform: uppercase; font-weight: 600; color: var(--text-muted); tracking: 1px; }
 
+        /* --- LOGIN MODAL --- */
+        #login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(97, 18, 50, 0.95); /* Guinda semi-transparente */
+            display: flex; align-items: center; justify-content: center;
+            z-index: 10000; transition: all 0.5s ease;
+        }
+        .login-card {
+            background: white; padding: 2.5rem; border-radius: 20px;
+            width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        .login-card h2 { color: var(--primary); margin-bottom: 5px; font-family: 'Montserrat', sans-serif; }
+        .login-card p { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 25px; }
+        .login-card .form-group { text-align: left; }
+        .login-card input { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .btn-login { 
+            background: var(--primary); color: white; border: none; padding: 14px; 
+            border-radius: 10px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 20px;
+        }
+        .btn-logout {
+            background: transparent; border: 1px solid var(--primary); color: var(--primary);
+            padding: 5px 12px; border-radius: 8px; font-size: 0.7rem; font-weight: 700; cursor: pointer;
+        }
+        .user-info-pill {
+            display: flex; align-items: center; gap: 10px;
+            background: #f1f5f9; padding: 5px 12px; border-radius: 20px; font-size: 0.75rem;
+        }
+
         .user-hub { display: flex; align-items: center; gap: 20px; }
         .clock-pill {
             background: #f8fafc;
@@ -381,6 +410,31 @@
 </head>
 <body>
 
+    <!-- Overlay de Login -->
+    <div id="login-overlay">
+        <div class="login-card">
+            <div class="brand-logo" style="margin: 0 auto 15px;">C</div>
+            <h2>Bienvenido</h2>
+            <p>CONASAMA | Dashboard de Brigadas</p>
+            <div class="form-group">
+                <label>Usuario</label>
+                <input type="text" id="login-user" placeholder="Ej. admin">
+            </div>
+            <div class="form-group" style="margin-top: 15px;">
+                <label>Contraseña</label>
+                <input type="password" id="login-pass" placeholder="••••••••">
+            </div>
+            <button class="btn-login" onclick="login()">INGRESAR AL SISTEMA</button>
+            <p id="login-error" style="color: var(--danger); font-size: 0.7rem; margin-top: 15px; display: none;">Credenciales incorrectas</p>
+            <div style="margin-top: 20px; padding: 10px; background: #f8fafc; border-radius: 8px; font-size: 0.6rem; text-align: left; color: #64748b;">
+                <strong>Demo Accounts:</strong><br>
+                • admin / admin123 (Central)<br>
+                • dep_salud / dep123 (Admin Dependencia)<br>
+                • ANTICORRUPCIÓN_P001 / sp123 (Servidor Público)
+            </div>
+        </div>
+    </div>
+
     <header>
         <div class="brand">
             <div class="brand-logo">C</div>
@@ -391,16 +445,13 @@
         </div>
         
         <div class="user-hub">
+            <div id="user-session-info" class="user-info-pill hidden">
+                <span id="session-label">Usuario</span>
+                <button class="btn-logout" onclick="logout()">Cerrar Sesión</button>
+            </div>
             <div class="clock-pill">
                 <div id="clock">00:00:00</div>
-                <div id="date">Jueves, 23 de Abril 2026</div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 10px; background: #fff; padding: 5px 12px; border-radius: 30px; border: 1px solid #e2e8f0">
-                <div style="width: 32px; height: 32px; background: #e2e8f0; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; color: #64748b; font-size: 0.8rem">JD</div>
-                <div style="line-height: 1.1">
-                    <div style="font-size: 0.75rem; font-weight: 700">Juan Dario</div>
-                    <div style="font-size: 0.6rem; color: #10b981">● En Línea</div>
-                </div>
+                <div id="date">Lunes, 01 de Enero</div>
             </div>
         </div>
     </header>
@@ -668,6 +719,67 @@
         const catSubtemasSM = ['Bienestar laboral y riesgos psicosociales', 'Crianza positiva', 'Duelo', 'Manejo de emociones', 'Prevención de la violencia', 'Salud mental en la infancia y adolescencia'];
         const catActividades = ['Capacitación virtual', 'Capacitación presencial', 'Cápsula informativa', 'Conferencia presencial', 'Conferencia en línea', 'Consejería / Orientación', 'Curso presencial', 'Curso en línea', 'Obra de Teatro', 'Promoción de entornos de trabajo saludables', 'Plática', 'Sesión educativa', 'Taller presencial', 'Taller en línea'];
 
+        // --- SEGURIDAD Y CONTROL DE ACCESO (SIMULADO) ---
+        const MOCK_USERS = {
+            'admin': { pass: 'admin123', role: 'central', name: 'Administrador Central' },
+            'dep_salud': { pass: 'dep123', role: 'dependency', target: 'SALUD', name: 'Admin Dependencia Salud' },
+            'dep_anticorrupcion': { pass: 'dep123', role: 'dependency', target: 'ANTICORRUPCIÓN', name: 'Admin Anticorrupción' },
+            'ANTICORRUPCIÓN_P001': { pass: 'sp123', role: 'servant', target: 'ANTICORRUPCIÓN_P001', name: 'Brigadista P001' }
+        };
+
+        let currentUser = null;
+
+        function checkSession() {
+            const session = localStorage.getItem('conasama_session');
+            if (session) {
+                currentUser = JSON.parse(session);
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('user-session-info').classList.remove('hidden');
+                document.getElementById('session-label').innerText = `${currentUser.name} (${currentUser.role.toUpperCase()})`;
+                initApp();
+            }
+        }
+
+        function login() {
+            const u = document.getElementById('login-user').value;
+            const p = document.getElementById('login-pass').value;
+            const error = document.getElementById('login-error');
+
+            if (MOCK_USERS[u] && MOCK_USERS[u].pass === p) {
+                currentUser = { ...MOCK_USERS[u], id: u };
+                localStorage.setItem('conasama_session', JSON.stringify(currentUser));
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('user-session-info').classList.remove('hidden');
+                document.getElementById('session-label').innerText = `${currentUser.name} (${currentUser.role.toUpperCase()})`;
+                error.style.display = 'none';
+                initApp();
+            } else {
+                error.style.display = 'block';
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('conasama_session');
+            window.location.reload();
+        }
+
+        function initApp() {
+            allData = window.conasamaData;
+            
+            // Aplicar filtrado inicial por rol
+            if (currentUser.role === 'dependency') {
+                allData = allData.filter(d => d.Dependencia === currentUser.target);
+            } else if (currentUser.role === 'servant') {
+                allData = allData.filter(d => d['servidor publico'] === currentUser.target || d['servidor publico2'] === currentUser.target);
+            }
+
+            initCatalogos();
+            initMap();
+            populateFilters();
+            render();
+            updateKPIs();
+        }
+
         function initCatalogos() {
             const selTema = document.getElementById('form-tema');
             const selActividad = document.getElementById('form-actividad');
@@ -704,15 +816,15 @@
 
         // --- INICIALIZACIÓN ---
         function init() {
-            initCatalogos();
-            initMap();
-            if (window.conasamaData) {
-                allData = window.conasamaData;
-                populateFilters();
-                updateKPIs();
-                render();
-            }
-            startClock();
+            updateTime();
+            setInterval(updateTime, 1000);
+            checkSession();
+        }
+
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('clock').innerText = now.toLocaleTimeString('es-MX');
+            document.getElementById('date').innerText = now.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
         }
 
         function initMap() {
@@ -722,34 +834,29 @@
             }).setView([19.4326, -99.1332], 7);
             
             L.control.zoom({ position: 'bottomright' }).addTo(map);
-
-            // Capa base Premium (Esri World Street Map)
-            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19
-            }).addTo(map);
-
-            markerLayer.addTo(map);
-            routeLayer.addTo(map);
         }
 
         function populateFilters() {
             // Estados
             const states = [...new Set(allData.map(d => d.Estado))].sort();
             const selState = document.getElementById('sel-state');
-            states.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s; opt.innerText = s;
-                selState.appendChild(opt);
-            });
+            selState.innerHTML = '<option value="all">Todos los Estados</option>';
+            states.forEach(s => selState.add(new Option(s, s)));
 
             // Dependencias
             const deps = [...new Set(allData.map(d => d.Dependencia))].sort();
             const selDep = document.getElementById('sel-dep');
-            deps.forEach(d => {
-                const opt = document.createElement('option');
-                opt.value = d; opt.innerText = d;
-                selDep.appendChild(opt);
-            });
+            selDep.innerHTML = '<option value="all">Todas las Dependencias</option>';
+            deps.forEach(d => selDep.add(new Option(d, d)));
+
+            if (currentUser.role !== 'central') {
+                selDep.value = currentUser.target;
+                selDep.disabled = true;
+                populateServants();
+            }
+            
+            // Municipios iniciales
+            populateMunicipios();
 
             // Días
             const days = [...new Set(allData.filter(d => d.Día).map(d => d.Día))].sort((a,b) => a-b);
@@ -769,12 +876,8 @@
             selState.onchange = () => {
                 populateMunicipios();
                 render();
-                zoomToRegion();
             };
-            document.getElementById('sel-muni').onchange = () => {
-                render();
-                zoomToRegion();
-            };
+            document.getElementById('sel-muni').onchange = render;
             selDep.onchange = () => {
                 populateServants();
                 render();
@@ -790,30 +893,7 @@
             if (state === 'all') return;
             
             const munis = [...new Set(allData.filter(d => d.Estado === state).map(d => d.Municipio))].sort();
-            munis.forEach(m => {
-                const opt = document.createElement('option');
-                opt.value = m; opt.innerText = m;
-                selMuni.appendChild(opt);
-            });
-        }
-
-        function zoomToRegion() {
-            const state = document.getElementById('sel-state').value;
-            const muni = document.getElementById('sel-muni').value;
-            
-            let filtered = allData;
-            if (state !== 'all') filtered = filtered.filter(d => d.Estado === state);
-            if (muni !== 'all') filtered = filtered.filter(d => d.Municipio === muni);
-            
-            if (filtered.length > 0) {
-                const lats = filtered.map(d => d.Latitud);
-                const lons = filtered.map(d => d.Longitud);
-                const bounds = [
-                    [Math.min(...lats), Math.min(...lons)],
-                    [Math.max(...lats), Math.max(...lons)]
-                ];
-                map.flyToBounds(bounds, { padding: [50, 50], duration: 1.5 });
-            }
+            munis.forEach(m => selMuni.add(new Option(m, m)));
         }
 
         function populateServants() {
@@ -824,15 +904,10 @@
             let filtered = allData;
             if (dep !== 'all') filtered = allData.filter(d => d.Dependencia === dep);
             
-            const servants = [...new Set(filtered.map(d => d['servidor publico']))].sort();
-            servants.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s; opt.innerText = s;
-                selServ.appendChild(opt);
-            });
+            const servants = [...new Set(filtered.flatMap(d => [d['servidor publico'], d['servidor publico2']]).filter(Boolean))].sort();
+            servants.forEach(s => selServ.add(new Option(s, s)));
         }
 
-        // --- LÓGICA DE RENDERIZADO ---
         function render() {
             const state = document.getElementById('sel-state').value;
             const muni = document.getElementById('sel-muni').value;
@@ -848,7 +923,7 @@
                 const matchState = state === 'all' || d.Estado === state;
                 const matchMuni = muni === 'all' || d.Municipio === muni;
                 const matchDep = dep === 'all' || d.Dependencia === dep;
-                const matchServ = servant === 'all' || d['servidor publico'] === servant;
+                const matchServ = servant === 'all' || d['servidor publico'] === servant || d['servidor publico2'] === servant;
                 const matchDay = day === 'all' || d.Día == day;
                 
                 const report = persistentReports[d.CCT];
@@ -858,14 +933,10 @@
                 return matchState && matchMuni && matchDep && matchServ && matchDay && matchStatus;
             });
 
-            // Optimización si hay miles de puntos
-            const limit = 2000;
-            const display = filtered.slice(0, limit);
-
-            display.forEach(d => {
+            filtered.forEach(d => {
                 const report = persistentReports[d.CCT];
                 const status = report ? report.status : 'pendiente';
-                let color = 'var(--pending)'; // Pending
+                let color = 'var(--pending)';
                 if (status === 'visitado') color = 'var(--success)';
                 if (status === 'fallido') color = 'var(--danger)';
 
@@ -881,21 +952,13 @@
                 m.addTo(markerLayer);
             });
 
-            // Dibujar Rutas si hay un servidor seleccionado
             if (servant !== 'all') {
                 drawRoutes(filtered, day);
-            }
-
-            if (filtered.length > 0 && (dep !== 'all' || servant !== 'all' || day !== 'all')) {
-                const group = new L.featureGroup(markerLayer.getLayers());
-                if (markerLayer.getLayers().length > 0) map.fitBounds(group.getBounds(), { padding: [50, 50] });
             }
         }
 
         function drawRoutes(data, dayFilter) {
-            // Agrupar por día
             const days = dayFilter === 'all' ? [...new Set(data.map(d => d.Día))].sort((a,b) => a-b) : [dayFilter];
-            
             days.forEach(day => {
                 const points = data
                     .filter(d => d.Día == day)
@@ -903,18 +966,11 @@
                     .map(d => [d.Latitud, d.Longitud]);
 
                 if (points.length > 1) {
-                    L.polyline(points, {
-                        color: 'var(--primary)',
-                        weight: 3,
-                        opacity: 0.5,
-                        dashArray: '10, 10',
-                        lineJoin: 'round'
-                    }).addTo(routeLayer);
+                    L.polyline(points, { color: 'var(--primary)', weight: 3, opacity: 0.5, dashArray: '10, 10', lineJoin: 'round' }).addTo(routeLayer);
                 }
             });
         }
 
-        // --- INTERACCIONES ---
         function showDetail(d) {
             selectedSchool = d;
             document.getElementById('empty-panel').classList.add('hidden');
@@ -931,21 +987,18 @@
             document.getElementById('detail-day').innerText = d.Día || '--';
             document.getElementById('detail-order').innerText = d.Orden || '--';
 
-            // Personal Asignado (Mapping Humano)
             const assignedCard = document.getElementById('assigned-card');
             if (d.assigned_name) {
                 assignedCard.classList.remove('hidden');
                 document.getElementById('assigned-name').innerText = d.assigned_name;
                 document.getElementById('assigned-puesto').innerText = d.assigned_puesto;
                 document.getElementById('assigned-center').innerText = d.assigned_center;
-                
                 const initials = d.assigned_name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
                 document.getElementById('assigned-initials').innerText = initials;
             } else {
                 assignedCard.classList.add('hidden');
             }
 
-            // Report Data
             const report = persistentReports[d.CCT] || { status: 'pendiente', text: '', photo: '' };
             const badge = document.getElementById('detail-badge');
             badge.innerText = report.status === 'visitado' ? 'VISITADO' : (report.status === 'fallido' ? 'FALLIDO' : 'PENDIENTE');
@@ -962,16 +1015,15 @@
             document.getElementById('form-cargo').value = report.cargo || '';
             
             document.getElementById('form-tema').value = report.tema || '';
+            const selSub = document.getElementById('form-subtema');
+            selSub.innerHTML = '<option value="">Selecciona un subtema...</option>';
             if (report.tema === 'Salud mental y bienestar emocional') {
-                const selSub = document.getElementById('form-subtema');
                 selSub.disabled = false;
-                selSub.innerHTML = '<option value="">Selecciona un subtema...</option>';
                 catSubtemasSM.forEach(s => selSub.add(new Option(s, s)));
             } else {
-                document.getElementById('form-subtema').disabled = true;
-                document.getElementById('form-subtema').innerHTML = '<option value="">Selecciona un subtema...</option>';
+                selSub.disabled = true;
             }
-            document.getElementById('form-subtema').value = report.subtema || '';
+            selSub.value = report.subtema || '';
             document.getElementById('form-actividad').value = report.actividad || '';
             document.getElementById('form-cantidad').value = report.cantidad || 0;
             document.getElementById('form-toggle-volumen').checked = report.altoVolumen || false;
@@ -982,24 +1034,43 @@
             });
             calculateTotals();
             
-            updateCharCount();
+            // --- PERMISOS DE EDICIÓN ---
+            const btnSave = document.querySelector('.btn-save');
+            const isHistorical = !!report.timestamp;
             
-            currentPhotos = report.photos || [];
-            if (report.photo && !report.photos) {
-                // Backwards compatibility with single photo
-                currentPhotos = [report.photo];
+            if (currentUser.role === 'central') {
+                btnSave.style.display = 'block';
+                btnSave.innerText = isHistorical ? 'ACTUALIZAR REPORTE (MODO CENTRAL)' : 'GUARDAR REPORTE OPERATIVO';
+            } else {
+                if (isHistorical) {
+                    btnSave.style.display = 'none';
+                } else {
+                    btnSave.style.display = 'block';
+                    btnSave.innerText = 'GUARDAR REPORTE OPERATIVO';
+                }
             }
+            
+            const funcionarioInputs = ['form-rfc', 'form-apaterno', 'form-amaterno', 'form-nombre', 'form-cargo'];
+            funcionarioInputs.forEach(id => {
+                const el = document.getElementById(id);
+                if (currentUser.role === 'central') {
+                    el.readOnly = false;
+                } else if (currentUser.role === 'dependency' && !isHistorical) {
+                    el.readOnly = false;
+                } else {
+                    el.readOnly = true;
+                }
+            });
+
+            updateCharCount();
+            currentPhotos = report.photos || [];
             renderGallery();
-
             toggleSections();
-
-            // Zoom a la escuela
             map.flyTo([d.Latitud, d.Longitud], 15);
         }
 
         function saveReport() {
             if (!selectedSchool) return;
-
             const status = document.getElementById('form-status').value;
             const text = document.getElementById('form-text').value.trim();
             const motivo = document.getElementById('form-motivo').value.trim();
@@ -1008,78 +1079,23 @@
             const amaterno = document.getElementById('form-amaterno').value.trim();
             const nombre = document.getElementById('form-nombre').value.trim();
             const cargo = document.getElementById('form-cargo').value.trim();
-            
             const tema = document.getElementById('form-tema').value;
             const subtema = document.getElementById('form-subtema').value;
             const actividad = document.getElementById('form-actividad').value;
             const cantidad = parseInt(document.getElementById('form-cantidad').value, 10) || 0;
             const altoVolumen = document.getElementById('form-toggle-volumen').checked;
             
-            // (Photos are handled via the currentPhotos global array)
-
-            // VALIDACIONES
-            if (status !== 'pendiente') {
-                if (!rfc || !apaterno || !amaterno || !nombre || !cargo) {
-                    alert('⚠️ Todos los datos del funcionario asignado son obligatorios.');
-                    return;
-                }
-                if (rfc.length < 10) {
-                    alert('⚠️ El RFC parece estar incompleto. Por favor verifícalo.');
-                    return;
-                }
-            }
-
-            if (status === 'visitado') {
-                if (!tema || !actividad) {
-                    alert('⚠️ Debe seleccionar un Tema y una Actividad.');
-                    return;
-                }
-                if (document.getElementById('form-cantidad').classList.contains('input-error')) {
-                    alert('⚠️ El valor de Cantidad supera el límite permitido. Habilite "Alto volumen" si es necesario.');
-                    return;
-                }
-                if (text.length === 0) {
-                    alert('⚠️ La relatoría de actividades no puede estar vacía.');
-                    return;
-                }
-                if (text.length < 50) {
-                    alert('⚠️ La relatoría es demasiado corta. Debe tener al menos 50 caracteres para ser válida.');
-                    return;
-                }
-            }
-
-            if (status === 'fallido' && !motivo) {
-                alert('⚠️ Por favor indica el motivo del fallo de la visita.');
+            if (status !== 'pendiente' && (!rfc || !apaterno || !amaterno || !nombre || !cargo)) {
+                alert('⚠️ Todos los datos del funcionario asignado son obligatorios.');
                 return;
             }
 
-            const beneficiados = {};
-            ['sec1', 'sec2', 'sec3', 'prep'].forEach(nivel => {
-                beneficiados[`h-${nivel}`] = parseInt(document.getElementById(`h-${nivel}`).value) || 0;
-                beneficiados[`m-${nivel}`] = parseInt(document.getElementById(`m-${nivel}`).value) || 0;
-            });
-
             persistentReports[selectedSchool.CCT] = {
-                status,
-                text,
-                motivo,
-                rfc,
-                apaterno,
-                amaterno,
-                nombre,
-                cargo,
-                tema,
-                subtema,
-                actividad,
-                cantidad,
-                altoVolumen,
-                beneficiados,
-                photos: currentPhotos,
-                timestamp: new Date().toISOString()
+                status, text, motivo, rfc, apaterno, amaterno, nombre, cargo, tema, subtema, actividad,
+                cantidad, altoVolumen, photos: currentPhotos, timestamp: new Date().toISOString()
             };
 
             localStorage.setItem('conasama_v2_reports', JSON.stringify(persistentReports));
-            
             alert('✅ ¡Reporte guardado con éxito!');
             updateKPIs();
             render();
@@ -1096,17 +1112,9 @@
 
         function filterByStatus(status) {
             currentStatusFilter = status;
-            
-            // UI Update
             document.querySelectorAll('.kpi-card').forEach(c => c.classList.remove('active'));
-            const cards = {
-                'all': '.kpi-card.all',
-                'pendiente': '.kpi-card.red',
-                'visitado': '.kpi-card.green',
-                'fallido': '.kpi-card.yellow'
-            };
-            document.querySelector(cards[status]).classList.add('active');
-            
+            const mapKeys = { 'all': '.all', 'pendiente': '.red', 'visitado': '.green', 'fallido': '.yellow' };
+            document.querySelector(mapKeys[status]).classList.add('active');
             render();
         }
 
@@ -1120,12 +1128,9 @@
         function resetApp() {
             document.getElementById('sel-state').value = 'all';
             document.getElementById('sel-muni').innerHTML = '<option value="all">Todos los Municipios</option>';
-            document.getElementById('sel-dep').value = 'all';
-            populateServants();
             selectDay('all');
             currentStatusFilter = 'all';
-            filterByStatus('all');
-            map.flyTo([23.6345, -102.5528], 5);
+            render();
         }
 
         function updateKPIs() {
@@ -1133,17 +1138,13 @@
             const reportsArr = Object.values(persistentReports);
             const visit = reportsArr.filter(r => r.status === 'visitado').length;
             const fall = reportsArr.filter(r => r.status === 'fallido').length;
-            const pte = total - visit - fall;
-
             document.getElementById('kpi-total').innerText = total;
             document.getElementById('kpi-visit').innerText = visit;
             document.getElementById('kpi-fall').innerText = fall;
-            document.getElementById('kpi-pte').innerText = pte;
+            document.getElementById('kpi-pte').innerText = total - visit - fall;
         }
 
-        // --- MANEJO DE FOTOS ---
         let currentPhotos = [];
-        
         document.getElementById('photo-dropzone').onclick = (e) => {
             if(e.target.classList.contains('photo-remove')) return;
             document.getElementById('form-file').click();
@@ -1151,147 +1152,50 @@
 
         document.getElementById('form-file').onchange = function(e) {
             const files = Array.from(e.target.files);
-            
-            if (currentPhotos.length + files.length > 5) {
-                alert('⚠️ Solo se permite un máximo de 5 imágenes.');
-                return;
-            }
-
             files.forEach(file => {
-                if (file) {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        currentPhotos.push(event.target.result);
-                        renderGallery();
-                    };
-                    reader.readAsDataURL(file);
-                }
+                const reader = new FileReader();
+                reader.onload = (ev) => { currentPhotos.push(ev.target.result); renderGallery(); };
+                reader.readAsDataURL(file);
             });
-            // Limpiar input para permitir seleccionar la misma imagen de nuevo
-            this.value = '';
         };
 
         function renderGallery() {
             const gallery = document.getElementById('photo-gallery');
-            const dropzoneP = document.getElementById('dropzone-text');
             gallery.innerHTML = '';
-            
-            if (currentPhotos.length > 0) {
-                dropzoneP.style.display = 'none';
-                currentPhotos.forEach((photoData, index) => {
-                    const container = document.createElement('div');
-                    container.className = 'photo-thumb-container';
-                    
-                    const img = document.createElement('img');
-                    img.src = photoData;
-                    img.className = 'photo-thumb';
-                    
-                    const removeBtn = document.createElement('div');
-                    removeBtn.className = 'photo-remove';
-                    removeBtn.innerHTML = '×';
-                    removeBtn.onclick = (e) => {
-                        e.stopPropagation();
-                        currentPhotos.splice(index, 1);
-                        renderGallery();
-                    };
-                    
-                    container.appendChild(img);
-                    container.appendChild(removeBtn);
-                    gallery.appendChild(container);
-                });
-            } else {
-                dropzoneP.style.display = 'block';
-            }
+            currentPhotos.forEach((p, idx) => {
+                const cont = document.createElement('div');
+                cont.className = 'photo-thumb-container';
+                cont.innerHTML = `<img src="${p}" class="photo-thumb"><div class="photo-remove">×</div>`;
+                cont.querySelector('.photo-remove').onclick = () => { currentPhotos.splice(idx, 1); renderGallery(); };
+                gallery.appendChild(cont);
+            });
         }
-
-        // Bloqueo de caracteres no permitidos
-        document.addEventListener('keydown', function(e) {
-            if (e.target && e.target.classList.contains('num-sanitized')) {
-                if (['e', 'E', '+', '-', '.'].includes(e.key)) {
-                    e.preventDefault();
-                }
-            }
-        });
 
         function toggleSections() {
             const status = document.getElementById('form-status').value;
-            
-            const gMotivo = document.getElementById('group-motivo');
-            const gActividad = document.getElementById('group-actividad');
-            const gRelatoria = document.getElementById('group-relatoria');
-            const gFuncionario = document.getElementById('group-funcionario');
-            const gBeneficiados = document.getElementById('group-beneficiados');
-            const gEvidencia = document.getElementById('group-evidencia');
-            
-            // Ocultar todo por defecto
-            gMotivo.style.display = 'none';
-            gActividad.style.display = 'none';
-            gRelatoria.style.display = 'none';
-            gFuncionario.style.display = 'none';
-            gBeneficiados.style.display = 'none';
-            gEvidencia.style.display = 'none';
-
-            if (status === 'pendiente') {
-                resetFormNumerics();
-            } else if (status === 'fallido') {
-                resetFormNumerics();
-                gMotivo.style.display = 'block';
-                gFuncionario.style.display = 'block';
-            } else if (status === 'visitado') {
-                gActividad.style.display = 'block';
-                gRelatoria.style.display = 'block';
-                gFuncionario.style.display = 'block';
-                gBeneficiados.style.display = 'block';
-                gEvidencia.style.display = 'block';
-            }
+            document.getElementById('group-motivo').style.display = (status === 'fallido') ? 'block' : 'none';
+            document.getElementById('group-actividad').style.display = (status === 'visitado') ? 'block' : 'none';
+            document.getElementById('group-relatoria').style.display = (status === 'visitado') ? 'block' : 'none';
+            document.getElementById('group-funcionario').style.display = (status !== 'pendiente') ? 'block' : 'none';
+            document.getElementById('group-beneficiados').style.display = (status === 'visitado') ? 'block' : 'none';
+            document.getElementById('group-evidencia').style.display = (status === 'visitado') ? 'block' : 'none';
         }
         document.getElementById('form-status').onchange = toggleSections;
 
-        function resetFormNumerics() {
-            document.querySelectorAll('.num-sanitized').forEach(input => {
-                input.value = 0;
-                input.classList.remove('input-error');
-            });
-            document.getElementById('form-toggle-volumen').checked = false;
-            calculateTotals();
-        }
-
         function calculateTotals() {
-            let totalH = 0;
-            let totalM = 0;
-            
-            ['sec1', 'sec2', 'sec3', 'prep'].forEach(nivel => {
-                const h = parseInt(document.getElementById(`h-${nivel}`).value, 10) || 0;
-                const m = parseInt(document.getElementById(`m-${nivel}`).value, 10) || 0;
-                const t = h + m;
-                document.getElementById(`t-${nivel}`).value = t;
-                totalH += h;
-                totalM += m;
+            let tH = 0, tM = 0;
+            ['sec1', 'sec2', 'sec3', 'prep'].forEach(n => {
+                const h = parseInt(document.getElementById(`h-${n}`).value) || 0;
+                const m = parseInt(document.getElementById(`m-${n}`).value) || 0;
+                document.getElementById(`t-${n}`).value = h + m;
+                tH += h; tM += m;
             });
-
-            document.getElementById('total-h').value = totalH;
-            document.getElementById('total-m').value = totalM;
-            document.getElementById('total-general').value = totalH + totalM;
+            document.getElementById('total-h').value = tH;
+            document.getElementById('total-m').value = tM;
+            document.getElementById('total-general').value = tH + tM;
         }
 
-        document.querySelectorAll('.calc-h, .calc-m').forEach(input => {
-            input.addEventListener('input', function() {
-                const val = parseInt(this.value, 10) || 0;
-                if (val > 999) this.value = 999;
-                if (val < 0) this.value = 0;
-                calculateTotals();
-            });
-        });
-
-        // --- RELOJ ---
-        function startClock() {
-            setInterval(() => {
-                const now = new Date();
-                document.getElementById('clock').innerText = now.toLocaleTimeString('es-MX');
-                document.getElementById('date').innerText = now.toLocaleDateString('es-MX', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-            }, 1000);
-        }
-
+        document.querySelectorAll('.calc-h, .calc-m').forEach(i => i.addEventListener('input', calculateTotals));
         window.onload = init;
     </script>
 </body>
