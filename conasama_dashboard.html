@@ -9,16 +9,16 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         :root {
-            --primary: #4E102E; /* Guinda Institucional */
-            --primary-light: #6E1C44;
-            --accent: #9E7E2E; /* Dorado Institucional */
-            --success: #285C4D; /* Verde Institucional/Exitoso */
-            --pending: #D4AF37; /* Dorado Claro para Pendientes */
-            --danger: #B3282D; /* Rojo Institucional/Fallido */
+            --primary: #611232; /* Guinda GobMX 2024 */
+            --primary-light: #9b2247;
+            --accent: #a57f2c; /* Dorado GobMX 2024 */
+            --success: #1e5b4f; /* Verde Institucional GobMX */
+            --pending: #e6d194; /* Dorado Claro GobMX */
+            --danger: #b3282d; /* Rojo para alertas */
             --bg-canvas: #F9F9F9; /* Off-white Data Studio */
             --glass: rgba(255, 255, 255, 0.85);
-            --text-dark: #333333; /* Gris muy oscuro casi guinda para contraste */
-            --text-muted: #555555;
+            --text-dark: #161a1d; /* Gris casi negro GobMX */
+            --text-muted: #4D4D4D; /* Gris medio GobMX */
             --sidebar-width: 420px;
         }
 
@@ -252,7 +252,7 @@
 
     <header>
         <div class="brand">
-            <div class="brand-logo">C</div>
+            <img src="logo.png" alt="Gobierno de México" style="height: 45px; object-fit: contain;">
             <div class="brand-text">
                 <h1>CONASAMA BRIGADAS</h1>
                 <p>Sistema Central de Monitoreo Territorial</p>
@@ -339,7 +339,7 @@
             <div class="panel-content">
                 <!-- Estado Inicial -->
                 <div id="empty-panel" class="text-center" style="margin-top: 4rem; opacity: 0.5;">
-                    <img src="https://cdn-icons-png.flaticon.com/512/854/854878.png" width="80" style="filter: grayscale(1); margin-bottom: 20px">
+                    <img src="logo.png" width="160" style="filter: grayscale(1); margin-bottom: 20px; object-fit: contain;">
                     <p style="font-weight: 600">Explora el mapa y selecciona un plantel para ver su itinerario y capturar evidencia.</p>
                 </div>
 
